@@ -1,0 +1,2 @@
+class AvailableException(Exception):
+    pass

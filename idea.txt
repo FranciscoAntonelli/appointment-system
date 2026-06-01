@@ -1,0 +1,129 @@
+📅 Sistema de Gestión de Turnos Profesionales
+
+El proyecto consiste en desarrollar un sistema de gestión de turnos orientado a profesionales y centros de atención, permitiendo administrar reservas, disponibilidad horaria y agendas de manera centralizada mediante una arquitectura cliente-servidor.
+
+El sistema contará con un backend desarrollado con FastAPI encargado de exponer una API REST para gestionar:
+
+profesionales
+clientes
+turnos
+horarios disponibles
+estados de reservas
+
+Además, el sistema incluirá un frontend visual (web o desktop) que permitirá a los usuarios interactuar con la aplicación de forma intuitiva mediante formularios, agendas y paneles administrativos.
+
+🎯 Objetivo principal
+
+Digitalizar y automatizar la administración de turnos, evitando:
+
+superposición de horarios
+reservas duplicadas
+desorganización manual
+falta de control sobre la disponibilidad profesional
+⚙️ Funcionalidades principales
+👨‍⚕️ Gestión de profesionales
+
+El sistema permitirá:
+
+registrar profesionales
+modificar información
+definir horarios de atención
+visualizar agendas
+👤 Gestión de clientes
+
+Se podrán:
+
+registrar clientes
+consultar historial de turnos
+actualizar información
+📅 Gestión de turnos
+
+El sistema permitirá:
+
+crear turnos
+cancelar reservas
+reprogramar horarios
+consultar disponibilidad
+evitar conflictos horarios automáticamente
+🧠 Validaciones de negocio
+
+Antes de registrar un turno, el sistema deberá:
+
+verificar disponibilidad horaria
+controlar solapamientos
+validar estados de reserva
+actualizar la agenda correspondiente
+🌐 Arquitectura del sistema
+
+El proyecto estará dividido en dos partes principales:
+
+🔹 Backend API REST
+
+Desarrollado con:
+
+Python
+FastAPI
+PostgreSQL
+
+Responsable de:
+
+lógica de negocio
+persistencia de datos
+autenticación
+validaciones
+🔹 Frontend
+
+Encargado de:
+
+vistas
+interacción del usuario
+consumo de la API REST
+visualización de agendas y formularios
+
+Podrá desarrollarse con:
+React
+
+💡 Idea visual del sistema
+
+El usuario podrá:
+
+abrir una agenda
+visualizar horarios ocupados/libres
+registrar reservas
+administrar profesionales
+consultar turnos del día desde una interfaz visual conectada a la API REST.
+
+
+🔗 ORM
+SQLAlchemy
+✅ Validaciones
+Pydantic
+🔐 Auth
+JWT + bcrypt
+🧰 Herramientas
+GitHub
+Postman
+Alembic (después)
+Docker (después)
+
+
+Mínimo:
+login/register
+PostgreSQL
+CRUD completo
+relaciones
+validaciones
+README bueno
+Extra que suma MUCHO:
+roles
+filtros
+paginación
+Docker
+deploy
+tests básicos
+
+pedir explicaciones de SQL
+generar endpoints base
+entender errores de FastAPI
+refactorizar código
+pedir ejemplos de arquitectura
