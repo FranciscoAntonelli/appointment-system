@@ -1,0 +1,149 @@
+@startuml
+
+class AppointmentController {
+    + create()
+}
+AppointmentController --> IAppointmentService
+
+interface IAppointmentService {
+    + checkAvailability(professional_service, datetime_slot)
+    + create_appointment(professional_id, client_id, datetime_slot)
+    + get_by_id(appointment_id)
+}
+IAppointmentService --> Appointment
+
+class AppointmentService implements IAppointmentService{
+    - professional_service
+    - notification_service
+    - working_hours_service
+    - client_service
+    - appointment_repo
+
+    + checkAvailability(professional, datetime_slot)
+    + create_appointment(professional_id, client_id, datetime_slot)
+    + get_by_id(appointment_id)
+}
+AppointmentService o-- AppointmentRepository
+AppointmentService o-- INotificationService
+AppointmentService o-- IProfessionalService
+AppointmentService o-- IWorkingHoursService
+AppointmentService o-- IClientService
+
+
+
+interface IClientService {
+    + get_by_id(client_id)
+}
+IClientService --> Client
+
+class ClientService implements IClientService{
+    - client_repo
+
+    + get_by_id(client_id)
+}
+
+interface AppointmentRepository {
+    + save(appointment)
+    + find_by_professional_and_datetime(professional, datetime)
+}
+
+class PostgresAppointmentRepository implements AppointmentRepository{
+    + save(appointment)
+    + find_by_professional_and_datetime(professional_id, datetime)
+}
+PostgresAppointmentRepository o-- DatabaseConnection
+
+class Appointment {
+    - id
+    - duration
+    - professional_id
+    - client_id
+    - state
+}
+
+interface DatabaseConnection {
+    + connect()
+}
+
+class PostgresConnection implements DatabaseConnection {
+    + connect()
+}
+
+interface INotificationService {
+    + sendConfirmation()
+}
+
+class NotificationService implements INotificationService {
+    + sendConfirmation()
+}
+
+class Professional{
+    - id
+    - name 
+    - specialty
+    - working_hours: Working_Hours[]
+    - default_duration_minutes
+}
+Professional *-- WorkingHours
+
+class WorkingHours {
+    - day_of_week
+    - start_time
+    - end_time
+}
+
+class ProfessionalController {
+    + create()
+}
+ProfessionalController --> IProfessionalService
+
+interface IProfessionalService {
+    + create_professional()
+    + get_by_id(professional_id)
+}
+IProfessionalService --> Professional
+
+class ProfessionalService implements IProfessionalService {
+    - professional_repo
+    - working_hours_service
+    - professional_validator
+
+    + create_professional()
+    + get_by_id(professional_id)
+}
+ProfessionalService o-- ProfessionalRepository
+ProfessionalService o-- Validator
+ProfessionalService o-- IWorkingHoursService
+
+interface IWorkingHoursService {
+    + is_within_schedule(working_hours, datetime_slot)
+}
+
+class WorkingHoursService implements IWorkingHoursService{
+    + is_within_schedule(working_hours, datetime_slot)
+}
+
+interface Validator {
+    + validate(data)
+}
+
+class ValidatorProfessional implements Validator{
+    + validate(data)
+}
+
+class ValidatorWorkingHours implements Validator{
+    + validate(data)
+}
+
+interface ProfessionalRepository {
+    + save(professional)
+}
+ProfessionalRepository --> Professional
+
+class PostgresProfessionalRepository implements ProfessionalRepository {
+    + save(professional)
+}
+
+PostgresProfessionalRepository o-- DatabaseConnection
+
+@enduml
