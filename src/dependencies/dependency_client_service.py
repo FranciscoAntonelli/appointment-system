@@ -1,0 +1,12 @@
+from src.dependencies.dependency_database import get_connection
+from src.repositories.client.postgres_client_repository import PostgresClientRepository
+from src.services.client.service_client import ServiceClient
+
+
+def get_client_service():
+
+    connection = get_connection()
+
+    repo = PostgresClientRepository(connection)
+
+    return ServiceClient(repo)
