@@ -7,6 +7,10 @@ class Professional:
         self._default_duration_minutes = default_duration_minutes
 
 
+    def set_id(self, professional_id):
+        self._id = professional_id
+
+
     @property
     def id(self):
         return self._id
