@@ -1,8 +1,8 @@
 from src.dependencies.dependency_database import get_connection
 from src.services.professional.service_professional import ServiceProfessional
 from src.repositories.professional.postgres_professional_repository import PostgresProfessionalRepository
-from src.validators.working_hours_validator import WorkingHoursValidator
-from src.validators.professional_validator import ProfessionalValidator
+from src.validators.professional.working_hours_validator import WorkingHoursValidator
+from src.validators.professional.professional_validator import ProfessionalValidator
 
 
 def get_professional_service():
