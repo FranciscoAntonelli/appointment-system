@@ -6,11 +6,22 @@ from src.exceptions.client_exception import ClientException
 from src.schemas.appointment_request import AppointmentRequest
 from src.dependencies.dependency_appointment_service import get_appointment_service
 
-router = APIRouter(prefix="/appointments", tags=["Appointments"])
+"""
+    200 → OK
+    201 → Creado
+    400 → Solicitud incorrecta
+    404 → No encontrado
+    409 → Conflicto
+    500 → Error interno
+    """
+
+router = APIRouter(prefix="/appointments", tags=["Appointments"]) #crea router FastApi
 
 # en fastapi se ponen los tipos
 
-@router.post("/")
+@router.post("/") # esta funcion responde a peticiones HTTP POST
+# fastapi toma automaticamente el json enviado por el cliente y lo convierte en un objeto AppointmentRequest
+# depends le dice a fastapi antes de ejecutar, llama get_appointment_service y pasame el resultado de la variable service
 def create_appointment(request: AppointmentRequest, service = Depends(get_appointment_service)):
 
     try:
@@ -25,9 +36,9 @@ def create_appointment(request: AppointmentRequest, service = Depends(get_appoin
             "message": "Turno creado correctamente",
             "appointment_id": appointment.id
         }
-    
+
     except (ProfessionalException, ClientException) as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) # detiene la ejecucion y devuelve una respuesta HTTP de error
     
     except AvailableException as e:
         raise HTTPException(status_code=409, detail=str(e))
