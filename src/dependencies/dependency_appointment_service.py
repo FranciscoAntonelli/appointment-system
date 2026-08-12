@@ -6,6 +6,8 @@ from src.dependencies.dependency_client_service import get_client_service
 from src.services.appointment.service_appointment import ServiceAppointment
 from src.repositories.appointment.postgres_appointment_repository import PostgresAppointmentRepository
 
+# funcion de dependencia de fastapi. Arma todas las dependencias necesarias para crear un service appointment
+
 def get_appointment_service():
 
     connection = get_connection()
