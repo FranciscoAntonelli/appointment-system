@@ -1,2 +1,0 @@
-class ProfessionalException(Exception):
-    pass
