@@ -14,7 +14,11 @@ class ServiceProfessional(IServiceProfessional):
 
         self._validator.validate(professional)
 
-        return self._repo.save(professional)
+        professional_id = self._repo.save(professional)
+
+        professional.set_id(professional_id)
+
+        return professional
     
     def get_by_id(self, professional_id):
         if professional_id is None:

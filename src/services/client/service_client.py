@@ -14,3 +14,8 @@ class ServiceClient(IServiceClient):
             raise ClientException("No existe el cliente")
         
         return client
+    
+
+    def create_client(self, client):
+
+        self._
