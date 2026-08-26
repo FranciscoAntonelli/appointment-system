@@ -7,6 +7,9 @@ class Client:
         self._phone = phone
 
 
+    def set_id(self, client_id):
+        self._id = client_id
+
     @property
     def id(self):
         return self._id

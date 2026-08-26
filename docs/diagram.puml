@@ -29,7 +29,12 @@ AppointmentService o-- IProfessionalService
 AppointmentService o-- IWorkingHoursService
 AppointmentService o-- IClientService
 
-
+class Client {
+    - id
+    - name
+    - email
+    - phone_number
+}
 
 interface IClientService {
     + get_by_id(client_id)
@@ -38,8 +43,28 @@ IClientService --> Client
 
 class ClientService implements IClientService{
     - client_repo
+    - client_validator
 
     + get_by_id(client_id)
+}
+
+
+
+class ClientValidator implements Validator{
+    + validate(data)
+}
+
+ClientService o-- Validator
+ClientService o-- ClientRepository
+
+interface ClientRepository {
+    + save(client)
+    + find_by_id(client_id)
+}
+
+class PostgresClientRepository implements ClientRepository{
+    + save(client)
+    + find_by_id(client_id)
 }
 
 interface AppointmentRepository {
@@ -128,8 +153,10 @@ interface Validator {
 }
 
 class ValidatorProfessional implements Validator{
+    - working_hours_validator
     + validate(data)
 }
+ValidatorProfessional <-- ValidatorWorkingHours
 
 class ValidatorWorkingHours implements Validator{
     + validate(data)
