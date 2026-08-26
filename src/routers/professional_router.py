@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from src.entities.professional import Professional
-from src.exceptions.professional_exception import ProfessionalException
+from src.exceptions.not_found_exception import NotFoundException
+from src.exceptions.validation_exception import ValidationException
+from src.exceptions.already_exists_exception import AlreadyExistsException
 from src.schemas.professional_request import ProfessionalRequest
 from src.dependencies.dependency_professional_service import get_professional_service
 
@@ -22,8 +24,8 @@ def create_professional(request: ProfessionalRequest, service = Depends(get_prof
             "professional_id": professional_created.id
         }
 
-    except(ProfessionalException) as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except(ValidationException) as e:
+            raise HTTPException(status_code=400, detail=str(e))
     
 
 @router.get("/{professional_id}")
@@ -32,5 +34,5 @@ def get_professional(professional_id: int, service = Depends(get_professional_se
     try:
         professional = service.get_by_id(professional_id)
         return professional
-    except ProfessionalException as e:
+    except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
