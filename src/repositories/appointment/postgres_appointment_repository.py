@@ -42,8 +42,6 @@ class PostgresAppointmentRepository(AppointmentRepository):
                 cursor.close()
 
 
-        
-    
     def find_by_professional_and_datetime(self, professional_id, datetime_slot):
 
         cursor = None
@@ -116,4 +114,14 @@ class PostgresAppointmentRepository(AppointmentRepository):
                 cursor.close()
             
        
-        
+    def update_state(self, appointment_id, state):
+        cursor = self._connection.cursor()
+
+        cursor.execute("""
+            UPDATE appointments
+            SET state = %s
+            WHERE id = %s
+        """, (state.value, appointment_id))
+
+        self._connection.commit()
+        cursor.close()
