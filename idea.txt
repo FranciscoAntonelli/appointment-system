@@ -1,129 +1,34 @@
-📅 Sistema de Gestión de Turnos Profesionales
+🩺 Sistema de gestión de turnos
 
-El proyecto consiste en desarrollar un sistema de gestión de turnos orientado a profesionales y centros de atención, permitiendo administrar reservas, disponibilidad horaria y agendas de manera centralizada mediante una arquitectura cliente-servidor.
+Es una API REST para gestionar turnos entre profesionales y clientes.
 
-El sistema contará con un backend desarrollado con FastAPI encargado de exponer una API REST para gestionar:
+El flujo principal sería:
 
-profesionales
-clientes
-turnos
-horarios disponibles
-estados de reservas
+Profesionales
+Crear profesionales.
+Definir especialidad.
+Definir duración predeterminada de los turnos.
+Definir sus horarios de atención.
 
-Además, el sistema incluirá un frontend visual (web o desktop) que permitirá a los usuarios interactuar con la aplicación de forma intuitiva mediante formularios, agendas y paneles administrativos.
+Clientes
+Registrar clientes.
+Guardar nombre, email y teléfono.
+Buscar clientes por ID.
 
-🎯 Objetivo principal
+Turnos
+Un cliente solicita un turno con un profesional.
+El sistema verifica:
+Que exista el profesional.
+Que exista el cliente.
+Que el horario esté dentro del horario laboral.
+Que no haya otro turno ocupado en ese horario.
+Si todo está bien, crea el turno como pending.
 
-Digitalizar y automatizar la administración de turnos, evitando:
+Estado del turno
 
-superposición de horarios
-reservas duplicadas
-desorganización manual
-falta de control sobre la disponibilidad profesional
-⚙️ Funcionalidades principales
-👨‍⚕️ Gestión de profesionales
+pending → turno solicitado.
+confirmed → turno confirmado.
+canceled → turno cancelado.
 
-El sistema permitirá:
-
-registrar profesionales
-modificar información
-definir horarios de atención
-visualizar agendas
-👤 Gestión de clientes
-
-Se podrán:
-
-registrar clientes
-consultar historial de turnos
-actualizar información
-📅 Gestión de turnos
-
-El sistema permitirá:
-
-crear turnos
-cancelar reservas
-reprogramar horarios
-consultar disponibilidad
-evitar conflictos horarios automáticamente
-🧠 Validaciones de negocio
-
-Antes de registrar un turno, el sistema deberá:
-
-verificar disponibilidad horaria
-controlar solapamientos
-validar estados de reserva
-actualizar la agenda correspondiente
-🌐 Arquitectura del sistema
-
-El proyecto estará dividido en dos partes principales:
-
-🔹 Backend API REST
-
-Desarrollado con:
-
-Python
-FastAPI
-PostgreSQL
-
-Responsable de:
-
-lógica de negocio
-persistencia de datos
-autenticación
-validaciones
-🔹 Frontend
-
-Encargado de:
-
-vistas
-interacción del usuario
-consumo de la API REST
-visualización de agendas y formularios
-
-Podrá desarrollarse con:
-React
-
-💡 Idea visual del sistema
-
-El usuario podrá:
-
-abrir una agenda
-visualizar horarios ocupados/libres
-registrar reservas
-administrar profesionales
-consultar turnos del día desde una interfaz visual conectada a la API REST.
-
-
-🔗 ORM
-SQLAlchemy
-✅ Validaciones
-Pydantic
-🔐 Auth
-JWT + bcrypt
-🧰 Herramientas
-GitHub
-Postman
-Alembic (después)
-Docker (después)
-
-
-Mínimo:
-login/register
-PostgreSQL
-CRUD completo
-relaciones
-validaciones
-README bueno
-Extra que suma MUCHO:
-roles
-filtros
-paginación
-Docker
-deploy
-tests básicos
-
-pedir explicaciones de SQL
-generar endpoints base
-entender errores de FastAPI
-refactorizar código
-pedir ejemplos de arquitectura
+Notificaciones
+Cuando se crea/confirmar un turno, el servicio se encarga de enviar una notificación.

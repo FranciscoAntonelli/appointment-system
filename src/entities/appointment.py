@@ -11,6 +11,9 @@ class Appointment:
     def set_id(self, appointment_id):
         self._id = appointment_id
 
+    def set_state(self, state):
+        self._state = state
+
 
     @property
     def id(self):
