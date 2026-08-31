@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
+from src.exceptions.validation_exception import ValidationException
 from src.exceptions.professional_exception import ProfessionalException
 from src.exceptions.available_exception import AvailableException
 from src.exceptions.client_exception import ClientException
@@ -54,3 +55,22 @@ def get_appointment(appointment_id: int, service = Depends(get_appointment_servi
 
     except AvailableException as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.patch("/{appointment_id}/confirm")
+def confirm_appointment(appointment_id: int, service = Depends(get_appointment_service)):
+    try:
+        return service.confirm_appointment(appointment_id)
+    except AvailableException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValidationException as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.patch("/{appointment_id}/cancel")
+def cancel_appointment(appointment_id: int, service = Depends(get_appointment_service)):
+    try:
+        return service.cancel_appointment(appointment_id)
+    except AvailableException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValidationException as e:
+            raise HTTPException(status_code=400, detail=str(e))
