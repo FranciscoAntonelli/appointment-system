@@ -1,3 +1,4 @@
+from src.exceptions.validation_exception import ValidationException
 from src.entities.appointment import Appointment
 from src.exceptions.available_exception import AvailableException
 from src.services.appointment.i_service_appointment import IServiceAppointment
@@ -62,6 +63,38 @@ class ServiceAppointment(IServiceAppointment):
 
         if not appointment:
             raise AvailableException("No existe el turno")
+
+        return appointment
+
+
+    def confirm_appointment(self, appointment_id):
+
+        appointment = self.get_by_id(appointment_id)
+
+        if appointment.state != AppointmentState.PENDING:
+            raise ValidationException(
+                "Solo se pueden confirmar turnos pendientes"
+            )
+
+        appointment.set_state(AppointmentState.CONFIRMED)
+
+        self._appointment_repo.update_state(appointment.id, AppointmentState.CONFIRMED)
+
+        return appointment
+
+
+    def cancel_appointment(self, appointment_id):
+
+        appointment = self.get_by_id(appointment_id)
+
+        if appointment.state != AppointmentState.PENDING:
+            raise ValidationException(
+                "Solo se pueden cancelar turnos pendientes"
+            )
+        
+        appointment.set_state(AppointmentState.CANCELED)
+
+        self._appointment_repo.update_state(appointment.id, AppointmentState.CANCELED)
 
         return appointment
     

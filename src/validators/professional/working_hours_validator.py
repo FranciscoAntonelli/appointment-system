@@ -1,11 +1,11 @@
-from src.exceptions.professional_exception import ProfessionalException
+from src.exceptions.validation_exception import ValidationException
 from src.validators.validator import Validator
 
 class WorkingHoursValidator(Validator):
 
     def validate(self, working_hours):
         if not working_hours:
-            raise ProfessionalException(
+            raise ValidationException(
                 "Las franjas de horarios están vacías"
             )
 
@@ -27,7 +27,7 @@ class WorkingHoursValidator(Validator):
 
         for wh in working_hours:
             if wh.day_of_week not in days_week:
-                raise ProfessionalException("El dia no existe")
+                raise ValidationException("El dia no existe")
             
 
     def _validate_working_hour_ranges(self, working_hours):
@@ -35,7 +35,7 @@ class WorkingHoursValidator(Validator):
         for wh in working_hours:
 
             if wh.start_time >= wh.end_time:
-                raise ProfessionalException(
+                raise ValidationException(
                     "La hora de inicio es mayor o igual a la hora de fin"
                 )
             
@@ -61,6 +61,6 @@ class WorkingHoursValidator(Validator):
                 next_schedule = schedules[i + 1] 
 
                 if current.end_time > next_schedule.start_time:
-                    raise ProfessionalException(
-                        f"Hay horarios superpuestos el {day}"
+                    raise ValidationException(
+                        f"Hay horarios superpuestos en el {day}"
                     )
