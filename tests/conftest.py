@@ -11,6 +11,7 @@ from src.enums.appointment_state import AppointmentState
 from src.entities.client import Client
 from src.repositories.appointment.postgres_appointment_repository import PostgresAppointmentRepository
 from dotenv import load_dotenv
+import uuid
 
 
 @pytest.fixture
@@ -68,20 +69,21 @@ def professional_id(db):
                    RETURNING id""") #triple comillas = texto largo
     
     prof_id = cursor.fetchone()[0]
-    db.commit()
     return prof_id
 
 @pytest.fixture
 def client_id(db):
     cursor = db.cursor()
+
+    email = f"test_{uuid.uuid4()}@example.com"
+
     cursor.execute("""
         INSERT INTO clients (name, email)
-        VALUES ('Test Client', 'test@example.com')
+        VALUES ('Test Client', %s)
         RETURNING id
-    """)
+    """, (email,))
 
     client_id = cursor.fetchone()[0]
-    db.commit()
     return client_id
 
 
@@ -99,12 +101,11 @@ def working_hours(db, professional_id):
         "18:00:00"
     ))
 
-    db.commit()
     return True
 
 
 @pytest.fixture
-def appointment(db, professional_id, client_id):
+def appointment_id(db, professional_id, client_id):
     cursor = db.cursor()
 
     cursor.execute("""
@@ -126,8 +127,6 @@ def appointment(db, professional_id, client_id):
     ))
 
     appointment_id = cursor.fetchone()[0]
-    db.commit()
-
     return appointment_id
 
 @pytest.fixture
@@ -140,6 +139,8 @@ def client(db):
 
     cursor = db.cursor()
 
+    email = f"juan_{uuid.uuid4()}@gmail.com"
+
     cursor.execute(
         """
         INSERT INTO clients(name, email, phone)
@@ -148,19 +149,18 @@ def client(db):
         """,
         (
             "Juan Perez",
-            "juan@gmail.com",
+            email,
             "123456789"
         )
     )
 
     client_id = cursor.fetchone()[0]
 
-    db.commit()
     cursor.close()
 
     return Client(
         id=client_id,
         name="Juan Perez",
-        email="juan@gmail.com",
+        email=email,
         phone="123456789"
     )
