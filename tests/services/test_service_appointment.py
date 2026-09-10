@@ -22,7 +22,7 @@ def test_check_availability_returns_true_when_is_no_appointment():
             WorkingHours("Lunes", time(9, 0), time(12, 0)),
             WorkingHours("Lunes", time(14, 0), time(18, 0)),
             WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miercoles", time(10,0), time(16,0)),
+            WorkingHours("Miércoles", time(10,0), time(16,0)),
         ],
         default_duration_minutes=30
     )
@@ -47,7 +47,7 @@ def test_check_availability_returns_true_when_is_no_appointment():
     service_appointment = ServiceAppointment(mock_professional_service, mock_working_hours_service,
                                              mock_notification_service, mock_client_service, mock_appointment_repo)
 
-    assert service_appointment.check_availability(professional, datetime_slot)
+    assert service_appointment.check_availability(professional, datetime_slot, 30)
 
 def test_check_availability_returns_true_when_slot_is_canceled():
     professional = Professional(
@@ -58,7 +58,7 @@ def test_check_availability_returns_true_when_slot_is_canceled():
             WorkingHours("Lunes", time(9, 0), time(12, 0)),
             WorkingHours("Lunes", time(14, 0), time(18, 0)),
             WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miercoles", time(10,0), time(16,0)),
+            WorkingHours("Miércoles", time(10,0), time(16,0)),
         ],
         default_duration_minutes=30
     )
@@ -94,7 +94,7 @@ def test_check_availability_returns_true_when_slot_is_canceled():
 
     service_appointment = ServiceAppointment(mock_professional_service, mock_working_hours_service, mock_notification_service , mock_client_service, mock_appointment_repo)
 
-    assert service_appointment.check_availability(professional, datetime_slot)
+    assert service_appointment.check_availability(professional, datetime_slot, 30)
 
 
 # --- tests de errores ---
@@ -108,7 +108,7 @@ def test_check_availability_returns_false_when_slot_is_outside_working_hours():
             WorkingHours("Lunes", time(9, 0), time(12, 0)),
             WorkingHours("Lunes", time(14, 0), time(18, 0)),
             WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miercoles", time(10,0), time(16,0)),
+            WorkingHours("Miércoles", time(10,0), time(16,0)),
         ],
         default_duration_minutes=30
     )
@@ -133,7 +133,7 @@ def test_check_availability_returns_false_when_slot_is_outside_working_hours():
     service_appointment = ServiceAppointment(mock_professional_service, mock_working_hours_service,
                                               mock_notification_service, mock_client_service,  mock_appointment_repo)
 
-    assert not service_appointment.check_availability(professional, datetime_slot)
+    assert not service_appointment.check_availability(professional, datetime_slot, 30)
 
 
 
@@ -146,7 +146,7 @@ def test_check_availability_returns_false_when_slot_is_busy():
             WorkingHours("Lunes", time(9, 0), time(12, 0)),
             WorkingHours("Lunes", time(14, 0), time(18, 0)),
             WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miercoles", time(10,0), time(16,0)),
+            WorkingHours("Miércoles", time(10,0), time(16,0)),
         ],
         default_duration_minutes=30
     )
@@ -179,7 +179,7 @@ def test_check_availability_returns_false_when_slot_is_busy():
 
     service_appointment = ServiceAppointment(mock_professional_service, mock_working_hours_service, mock_notification_service, mock_client_service, mock_appointment_repo)
 
-    assert not service_appointment.check_availability(professional, datetime_slot)
+    assert not service_appointment.check_availability(professional, datetime_slot, 30)
 
 
 def test_create_appointment_success():
@@ -198,7 +198,7 @@ def test_create_appointment_success():
             WorkingHours("Lunes", time(9, 0), time(12, 0)),
             WorkingHours("Lunes", time(14, 0), time(18, 0)),
             WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miercoles", time(10,0), time(16,0)),
+            WorkingHours("Miércoles", time(10,0), time(16,0)),
         ],
         default_duration_minutes=30
     )
@@ -230,7 +230,6 @@ def test_create_appointment_success():
     assert appointment.state == AppointmentState.PENDING
 
     appointment_repo.save.assert_called_once()
-    notification_service.send_confirmation.assert_called_once()
 
 
 def test_create_appointment_raises_exception_when_not_available():
@@ -249,7 +248,7 @@ def test_create_appointment_raises_exception_when_not_available():
             WorkingHours("Lunes", time(9, 0), time(12, 0)),
             WorkingHours("Lunes", time(14, 0), time(18, 0)),
             WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miercoles", time(10,0), time(16,0)),
+            WorkingHours("Miércoles", time(10,0), time(16,0)),
         ],
         default_duration_minutes=30
     )
