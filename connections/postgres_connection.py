@@ -7,7 +7,7 @@ class PostgresConnection(DatabaseConnection):
     def __init__(self, host, database, user, password):
         super().__init__(host, database, user, password)
 
-    def connect(self):
+    def connect(self): #abre conexion a la base de datos
         return psycopg2.connect(
             host=self._host,
             database=self._database,
