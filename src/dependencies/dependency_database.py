@@ -4,10 +4,10 @@ from src.config.settings import settings
 def get_connection():
 
     connection = PostgresConnection(
-        host=settings.DB_HOST,
-        database=settings.DB_NAME,
-        user=settings.DB_USER,
-        password=settings.DB_PASSWORD
+        host=settings._db_host,
+        database=settings._db_name,
+        user=settings._db_user,
+        password=settings._db_password
     ).connect()
 
     return connection
