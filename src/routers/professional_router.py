@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.entities.professional import Professional
 from src.exceptions.not_found_exception import NotFoundException
 from src.exceptions.validation_exception import ValidationException
-from src.exceptions.already_exists_exception import AlreadyExistsException
 from src.schemas.professional_request import ProfessionalRequest
 from src.dependencies.dependency_professional_service import get_professional_service
 

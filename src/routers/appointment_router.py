@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.exceptions.validation_exception import ValidationException
-from src.exceptions.professional_exception import ProfessionalException
 from src.exceptions.available_exception import AvailableException
-from src.exceptions.client_exception import ClientException
 from src.schemas.appointment_request import AppointmentRequest
 from src.dependencies.dependency_appointment_service import get_appointment_service
+from src.exceptions.not_found_exception import NotFoundException
 
 """
     200 → OK
@@ -38,7 +37,7 @@ def create_appointment(request: AppointmentRequest, service = Depends(get_appoin
             "appointment_id": appointment.id
         }
 
-    except (ProfessionalException, ClientException) as e:
+    except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e)) # detiene la ejecucion y devuelve una respuesta HTTP de error
     
     except AvailableException as e:
