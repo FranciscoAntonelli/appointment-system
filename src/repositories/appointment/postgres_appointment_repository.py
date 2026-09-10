@@ -115,13 +115,24 @@ class PostgresAppointmentRepository(AppointmentRepository):
             
        
     def update_state(self, appointment_id, state):
-        cursor = self._connection.cursor()
 
-        cursor.execute("""
-            UPDATE appointments
-            SET state = %s
-            WHERE id = %s
-        """, (state.value, appointment_id))
+        cursor = None
 
-        self._connection.commit()
-        cursor.close()
+        try:
+            cursor = self._connection.cursor()
+
+            cursor.execute("""
+                UPDATE appointments
+                SET state = %s
+                WHERE id = %s
+            """, (state.value, appointment_id))
+
+            self._connection.commit()
+
+        except Exception:
+            self._connection.rollback()
+            raise
+
+        finally:
+            if cursor:
+                cursor.close()
