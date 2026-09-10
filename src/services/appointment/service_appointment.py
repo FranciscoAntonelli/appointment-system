@@ -14,9 +14,9 @@ class ServiceAppointment(IServiceAppointment):
         self._client_service = client_service
         self._appointment_repo = repo
 
-    def check_availability(self, professional, datetime_slot):
+    def check_availability(self, professional, datetime_slot, duration):
         # comprobar si el datetime_slot esta dentro del rango de working hours con true o false
-        if not self._working_hours_service.is_within_schedule(professional.working_hours, datetime_slot):
+        if not self._working_hours_service.is_within_schedule(professional.working_hours, datetime_slot, duration):
             return False
         
         # fijarte si hay un turno ocupado en esa fecha por el profesional
@@ -38,9 +38,9 @@ class ServiceAppointment(IServiceAppointment):
         if datetime_slot < now:
             raise AvailableException("La fecha y hora del turno debe ser futura")
 
-        client = self._client_service.get_by_id(client_id)
+        self._client_service.get_by_id(client_id) #aca verifico que exista el cliente, si no existe lanza excepcion
 
-        available = self.check_availability(professional, datetime_slot)
+        available = self.check_availability(professional, datetime_slot, duration)
 
         if not available:
             raise AvailableException("No hay turno disponible en esa fecha y hora")
@@ -52,8 +52,6 @@ class ServiceAppointment(IServiceAppointment):
         appointment_id = self._appointment_repo.save(appointment)
 
         appointment.set_id(appointment_id)
-
-        self._notification_service.send_confirmation(appointment, professional)
 
         return appointment
     
@@ -79,6 +77,10 @@ class ServiceAppointment(IServiceAppointment):
         appointment.set_state(AppointmentState.CONFIRMED)
 
         self._appointment_repo.update_state(appointment.id, AppointmentState.CONFIRMED)
+
+        professional = self._professional_service.get_by_id(appointment.professional_id)
+
+        self._notification_service.send_confirmation(appointment, professional)
 
         return appointment
 

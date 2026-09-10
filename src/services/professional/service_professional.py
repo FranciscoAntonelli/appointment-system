@@ -1,8 +1,6 @@
-from datetime import datetime
-
 from src.exceptions.validation_exception import ValidationException
 from src.exceptions.not_found_exception import NotFoundException
-from src.services.professional.i_service_professinal import IServiceProfessional
+from src.services.professional.i_service_professional import IServiceProfessional
 
 
 class ServiceProfessional(IServiceProfessional):
