@@ -6,9 +6,9 @@ load_dotenv()
 class Settings:
 
     def __init__(self):
-        self.DB_HOST = os.getenv("DB_HOST")
-        self.DB_NAME = os.getenv("DB_NAME")
-        self.DB_USER = os.getenv("DB_USER")
-        self.DB_PASSWORD = os.getenv("DB_PASSWORD")
+        self._db_host = os.getenv("DB_HOST")
+        self._db_name = os.getenv("DB_NAME")
+        self._db_user = os.getenv("DB_USER")
+        self._db_password = os.getenv("DB_PASSWORD")
 
 settings = Settings()
