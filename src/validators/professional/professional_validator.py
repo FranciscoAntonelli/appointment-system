@@ -18,7 +18,7 @@ class ProfessionalValidator(Validator):
     def _validate_duration(self, duration):
         try:
             number = int(duration)
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValidationException("La duración no es un número entero")
 
         if number <= 0:
