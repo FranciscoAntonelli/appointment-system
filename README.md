@@ -130,7 +130,6 @@ Los tests están organizados según la responsabilidad de cada componente:
 
 ```text
 tests/
-├── repositories/
 ├── services/
 ├── validators/
 └── routers/
