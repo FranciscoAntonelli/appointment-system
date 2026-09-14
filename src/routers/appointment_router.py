@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.exceptions.validation_exception import ValidationException
-from src.exceptions.available_exception import AvailableException
+from src.exceptions.conflict_exception import ConflictException
+from src.exceptions.not_found_exception import NotFoundException
 from src.schemas.appointment_request import AppointmentRequest
 from src.dependencies.dependency_appointment_service import get_appointment_service
 from src.exceptions.not_found_exception import NotFoundException
@@ -40,19 +41,23 @@ def create_appointment(request: AppointmentRequest, service = Depends(get_appoin
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e)) # detiene la ejecucion y devuelve una respuesta HTTP de error
     
-    except AvailableException as e:
+    except ConflictException  as e:
         raise HTTPException(status_code=409, detail=str(e))
+
+    except ValidationException as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
 
 
 @router.get("/{appointment_id}")
 def get_appointment(appointment_id: int, service = Depends(get_appointment_service)):
     
     try:
-        appointment = service.get_by_id(appointment_id)
+        return service.get_by_id(appointment_id)
 
-        return appointment
-
-    except AvailableException as e:
+    except NotFoundException  as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
@@ -60,7 +65,7 @@ def get_appointment(appointment_id: int, service = Depends(get_appointment_servi
 def confirm_appointment(appointment_id: int, service = Depends(get_appointment_service)):
     try:
         return service.confirm_appointment(appointment_id)
-    except AvailableException as e:
+    except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -69,7 +74,7 @@ def confirm_appointment(appointment_id: int, service = Depends(get_appointment_s
 def cancel_appointment(appointment_id: int, service = Depends(get_appointment_service)):
     try:
         return service.cancel_appointment(appointment_id)
-    except AvailableException as e:
+    except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:
             raise HTTPException(status_code=400, detail=str(e))

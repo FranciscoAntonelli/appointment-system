@@ -2,8 +2,9 @@ from unittest.mock import Mock
 
 import pytest
 
+from src.exceptions.not_found_exception import NotFoundException
 from src.exceptions.validation_exception import ValidationException
-from src.exceptions.available_exception import AvailableException
+from src.exceptions.conflict_exception import ConflictException
 from src.entities.working_hours import WorkingHours
 from src.entities.appointment import Appointment
 from src.entities.professional import Professional
@@ -266,7 +267,7 @@ def test_create_appointment_raises_exception_when_not_available():
 
     service.check_availability = Mock(return_value=False)
 
-    with pytest.raises(AvailableException):
+    with pytest.raises(ConflictException):
         service.create_appointment(
             professional_id=26,
             client_id=1,
@@ -313,7 +314,7 @@ def test_get_by_id_raises_exception_when_appointment_not_exists():
         repo=appointment_repo
     )
 
-    with pytest.raises(AvailableException, match="No existe el turno"):
+    with pytest.raises(NotFoundException, match="No existe el turno"):
         service.get_by_id(999)
 
 
@@ -383,7 +384,7 @@ def test_confirm_appointment_raises_exception_when_appointment_not_exists():
         repo=appointment_repo
     )
 
-    with pytest.raises(AvailableException, match="No existe el turno"):
+    with pytest.raises(NotFoundException, match="No existe el turno"):
         service.confirm_appointment(999)
 
     appointment_repo.update_state.assert_not_called()
@@ -455,7 +456,7 @@ def test_cancel_appointment_raises_exception_when_appointment_not_exists():
         repo=appointment_repo
     )
 
-    with pytest.raises(AvailableException, match="No existe el turno"):
+    with pytest.raises(NotFoundException, match="No existe el turno"):
         service.cancel_appointment(999)
 
     appointment_repo.update_state.assert_not_called()
