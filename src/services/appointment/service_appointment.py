@@ -1,6 +1,7 @@
 from src.exceptions.validation_exception import ValidationException
 from src.entities.appointment import Appointment
-from src.exceptions.available_exception import AvailableException
+from src.exceptions.conflict_exception import ConflictException
+from src.exceptions.not_found_exception import NotFoundException
 from src.services.appointment.i_service_appointment import IServiceAppointment
 from src.enums.appointment_state import AppointmentState
 from datetime import datetime
@@ -36,14 +37,14 @@ class ServiceAppointment(IServiceAppointment):
         now = datetime.now()
 
         if datetime_slot < now:
-            raise AvailableException("La fecha y hora del turno debe ser futura")
+            raise ValidationException("La fecha y hora del turno debe ser futura")
 
         self._client_service.get_by_id(client_id) #aca verifico que exista el cliente, si no existe lanza excepcion
 
         available = self.check_availability(professional, datetime_slot, duration)
 
         if not available:
-            raise AvailableException("No hay turno disponible en esa fecha y hora")
+            raise ConflictException("No hay turno disponible en esa fecha y hora")
 
         appointment = Appointment(id=None, professional_id=professional.id, duration=duration, 
                                   datetime_slot=datetime_slot, 
@@ -60,7 +61,7 @@ class ServiceAppointment(IServiceAppointment):
         appointment = self._appointment_repo.get_by_id(appointment_id)
 
         if not appointment:
-            raise AvailableException("No existe el turno")
+            raise NotFoundException("No existe el turno")
 
         return appointment
 
