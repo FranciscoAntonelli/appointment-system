@@ -1,11 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
-
-from src.exceptions.validation_exception import ValidationException
-from src.exceptions.conflict_exception import ConflictException
-from src.exceptions.not_found_exception import NotFoundException
+from fastapi import APIRouter, Depends
 from src.schemas.appointment_request import AppointmentRequest
 from src.dependencies.dependency_appointment_service import get_appointment_service
-from src.exceptions.not_found_exception import NotFoundException
 
 """
     200 → OK
@@ -25,56 +20,28 @@ router = APIRouter(prefix="/appointments", tags=["Appointments"]) #crea router F
 # depends le dice a fastapi antes de ejecutar, llama get_appointment_service y pasame el resultado de la variable service
 def create_appointment(request: AppointmentRequest, service = Depends(get_appointment_service)):
 
-    try:
+    appointment = service.create_appointment(
+        request.professional_id,
+        request.client_id,
+        request.datetime_slot
+    )
 
-        appointment = service.create_appointment(
-            request.professional_id,
-            request.client_id,
-            request.datetime_slot
-        )
-
-        return {
-            "message": "Turno creado correctamente",
-            "appointment_id": appointment.id
-        }
-
-    except NotFoundException as e:
-        raise HTTPException(status_code=404, detail=str(e)) # detiene la ejecucion y devuelve una respuesta HTTP de error
+    return {
+        "message": "Turno creado correctamente",
+        "appointment_id": appointment.id
+    }
     
-    except ConflictException  as e:
-        raise HTTPException(status_code=409, detail=str(e))
-
-    except ValidationException as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
-
 
 @router.get("/{appointment_id}")
 def get_appointment(appointment_id: int, service = Depends(get_appointment_service)):
-    
-    try:
-        return service.get_by_id(appointment_id)
+    return service.get_by_id(appointment_id)
 
-    except NotFoundException  as e:
-        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.patch("/{appointment_id}/confirm")
 def confirm_appointment(appointment_id: int, service = Depends(get_appointment_service)):
-    try:
-        return service.confirm_appointment(appointment_id)
-    except NotFoundException as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except ValidationException as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return service.confirm_appointment(appointment_id)
 
 @router.patch("/{appointment_id}/cancel")
 def cancel_appointment(appointment_id: int, service = Depends(get_appointment_service)):
-    try:
-        return service.cancel_appointment(appointment_id)
-    except NotFoundException as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except ValidationException as e:
-            raise HTTPException(status_code=400, detail=str(e))
+    return service.cancel_appointment(appointment_id)
