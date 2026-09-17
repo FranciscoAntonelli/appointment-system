@@ -42,20 +42,31 @@ class PostgresAppointmentRepository(AppointmentRepository):
                 cursor.close()
 
 
-    def find_by_professional_and_datetime(self, professional_id, datetime_slot):
-
+    def find_conflicting_appointment(self,professional_id,start_datetime,end_datetime):
         cursor = None
 
         try:
-
             cursor = self._connection.cursor()
 
-            cursor.execute(
+            # el interval '1 minute' convierte la duracion en minutos a un intervalo de tiempo que se puede sumar a datetime_slot
+            cursor.execute( #la consulta pregunta si el turno existente empieza antes del final del nuevo turno y termina despues del inicio del nuevo turno. Si es asi, hay conflicto
                 """
-                select *
-                from appointments
-                where professional_id = %s and datetime_slot = %s 
-                """, (professional_id, datetime_slot)
+                SELECT id,
+                    professional_id,
+                    client_id,
+                    datetime_slot,
+                    state,
+                    duration
+                FROM appointments
+                WHERE professional_id = %s
+                AND datetime_slot < %s
+                AND datetime_slot + (duration * INTERVAL '1 minute') > %s 
+                """,
+                (
+                    professional_id,
+                    end_datetime,
+                    start_datetime,
+                )
             )
 
             row = cursor.fetchone()
@@ -69,9 +80,8 @@ class PostgresAppointmentRepository(AppointmentRepository):
                 client_id=row[2],
                 datetime_slot=row[3],
                 state=AppointmentState(row[4]),
-                duration=row[5],
+                duration=row[5]
             )
-        
 
         finally:
             if cursor:

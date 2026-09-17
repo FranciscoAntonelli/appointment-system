@@ -4,7 +4,7 @@ from src.exceptions.conflict_exception import ConflictException
 from src.exceptions.not_found_exception import NotFoundException
 from src.services.appointment.i_service_appointment import IServiceAppointment
 from src.enums.appointment_state import AppointmentState
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class ServiceAppointment(IServiceAppointment):
@@ -19,9 +19,11 @@ class ServiceAppointment(IServiceAppointment):
         # comprobar si el datetime_slot esta dentro del rango de working hours con true o false
         if not self._working_hours_service.is_within_schedule(professional.working_hours, datetime_slot, duration):
             return False
+
+        end_datetime = datetime_slot + timedelta(minutes=duration)
         
-        # fijarte si hay un turno ocupado en esa fecha por el profesional
-        appointment = self._appointment_repo.find_by_professional_and_datetime(professional.id, datetime_slot)
+        # me fijo si hay un turno ocupado en esa fecha por el profesional
+        appointment = self._appointment_repo.find_conflicting_appointment(professional.id, datetime_slot, end_datetime)
 
         # me fijo si el estado esta disponible o no con el state y si existe turno
         if(appointment and appointment.state.blocks_schedule()):

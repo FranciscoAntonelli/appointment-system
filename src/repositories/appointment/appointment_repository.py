@@ -11,7 +11,7 @@ class AppointmentRepository(ABC):
         pass
 
     @abstractmethod
-    def find_by_professional_and_datetime(self, professionla, datetime):
+    def find_conflicting_appointment(self, professional_id, start_datetime, end_datetime):
         pass
 
     @abstractmethod

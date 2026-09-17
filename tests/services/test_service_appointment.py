@@ -12,75 +12,88 @@ from src.services.appointment.service_appointment import ServiceAppointment
 from src.enums.appointment_state import AppointmentState
 from datetime import datetime, time
 
+
+@pytest.fixture # prepara un objeto Professional para usar en los tests
+def professional():
+    return Professional(
+        id=1,
+        name="Dr. Juan Pérez",
+        specialty="Dermatology",
+        working_hours=[
+            WorkingHours("Lunes", time(9, 0), time(12, 0)),
+            WorkingHours("Lunes", time(14, 0), time(18, 0)),
+            WorkingHours("Martes", time(9, 0), time(13, 0)),
+            WorkingHours("Miércoles", time(10, 0), time(16, 0)),
+        ],
+        default_duration_minutes=30
+    )
+
+
+@pytest.fixture
+def service_appointment():
+    professional_service = Mock()
+    client_service = Mock()
+    working_hours_service = Mock()
+    notification_service = Mock()
+    appointment_repo = Mock()
+
+    working_hours_service.is_within_schedule.return_value = True
+
+    service = ServiceAppointment(
+        professional_service=professional_service,
+        client_service=client_service,
+        working_hours_service=working_hours_service,
+        notification_service=notification_service,
+        repo=appointment_repo
+    )
+
+    return service, appointment_repo
+
+
+@pytest.fixture
+def appointment_dependencies():
+    professional_service = Mock()
+    client_service = Mock()
+    working_hours_service = Mock()
+    notification_service = Mock()
+    appointment_repo = Mock()
+
+    working_hours_service.is_within_schedule.return_value = True
+
+    service = ServiceAppointment(
+        professional_service=professional_service,
+        client_service=client_service,
+        working_hours_service=working_hours_service,
+        notification_service=notification_service,
+        repo=appointment_repo
+    )
+
+    return service, appointment_repo, working_hours_service
+
 # --- tests sin errores ---
 
-def test_check_availability_returns_true_when_is_no_appointment():
-    professional = Professional(
-        id=1,
-        name="Dr. Juan Pérez",
-        specialty="Dermatology",
-        working_hours=[
-            WorkingHours("Lunes", time(9, 0), time(12, 0)),
-            WorkingHours("Lunes", time(14, 0), time(18, 0)),
-            WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miércoles", time(10,0), time(16,0)),
-        ],
-        default_duration_minutes=30
+def test_check_availability_returns_true_when_is_no_appointment(professional, appointment_dependencies):
+    service, appointment_repo, working_hours_service = appointment_dependencies
+
+    datetime_slot = datetime(2026, 5, 18, 10, 0)
+
+    appointment_repo.find_conflicting_appointment.return_value = None
+
+    result = service.check_availability(
+        professional,
+        datetime_slot,
+        30
     )
 
-    datetime_slot = datetime(
-        2026, 5, 18, 10, 0
-    )
+    assert result is True
 
-    mock_professional_service = Mock()
-    mock_professional_service.get_by_id.return_value = professional
+def test_check_availability_returns_true_when_slot_is_canceled(professional, appointment_dependencies):
+    service, appointment_repo, working_hours_service = appointment_dependencies
 
-    mock_notification_service = Mock()
-
-    mock_appointment_repo = Mock()
-    mock_appointment_repo.find_by_professional_and_datetime.return_value = None
-
-    mock_working_hours_service = Mock()
-    mock_working_hours_service.is_within_schedule.return_value = True
-
-    mock_client_service = Mock()
-
-    service_appointment = ServiceAppointment(mock_professional_service, mock_working_hours_service,
-                                             mock_notification_service, mock_client_service, mock_appointment_repo)
-
-    assert service_appointment.check_availability(professional, datetime_slot, 30)
-
-def test_check_availability_returns_true_when_slot_is_canceled():
-    professional = Professional(
-        id=1,
-        name="Dr. Juan Pérez",
-        specialty="Dermatology",
-        working_hours=[
-            WorkingHours("Lunes", time(9, 0), time(12, 0)),
-            WorkingHours("Lunes", time(14, 0), time(18, 0)),
-            WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miércoles", time(10,0), time(16,0)),
-        ],
-        default_duration_minutes=30
-    )
-
-    datetime_slot = datetime(
-        2026, 5, 18, 10, 0
-    )
-
-    mock_professional_service = Mock()
-    mock_professional_service.get_by_id.return_value = professional
-    
-    mock_working_hours_service = Mock()
-    mock_working_hours_service.is_within_schedule.return_value = True
-
-    mock_notification_service = Mock()
-
-    mock_working_hours_service = Mock()
-    mock_working_hours_service.is_within_schedule.return_value = True
+    datetime_slot = datetime(2026, 5, 18, 10, 0)
 
     appointment = Appointment(
-        id=None,
+        id=1,
         professional_id=1,
         duration=30,
         datetime_slot=datetime(2026, 5, 18, 10, 0),
@@ -88,84 +101,71 @@ def test_check_availability_returns_true_when_slot_is_canceled():
         state=AppointmentState.CANCELED
     )
 
-    mock_appointment_repo = Mock()
-    mock_appointment_repo.find_by_professional_and_datetime.return_value = appointment
+    appointment_repo.find_conflicting_appointment.return_value = appointment 
 
-    mock_client_service = Mock()
+    result = service.check_availability(
+        professional,
+        datetime_slot,
+        30
+    )
 
-    service_appointment = ServiceAppointment(mock_professional_service, mock_working_hours_service, mock_notification_service , mock_client_service, mock_appointment_repo)
+    assert result is True
 
-    assert service_appointment.check_availability(professional, datetime_slot, 30)
+
+def test_check_availability_returns_true_when_slot_is_completed(
+    professional,
+    appointment_dependencies
+):
+    service, appointment_repo, _ = appointment_dependencies
+
+    datetime_slot = datetime(2026, 5, 18, 10, 15)
+
+    appointment = Appointment(
+        id=1,
+        professional_id=1,
+        duration=30,
+        datetime_slot=datetime(2026, 5, 18, 10, 0),
+        client_id=10,
+        state=AppointmentState.COMPLETED
+    )
+
+    appointment_repo.find_conflicting_appointment.return_value = appointment
+
+    result = service.check_availability(
+        professional,
+        datetime_slot,
+        30
+    )
+
+    assert result is True
 
 
 # --- tests de errores ---
 
-def test_check_availability_returns_false_when_slot_is_outside_working_hours():
-    professional = Professional(
-        id=1,
-        name="Dr. Juan Pérez",
-        specialty="Dermatology",
-        working_hours=[
-            WorkingHours("Lunes", time(9, 0), time(12, 0)),
-            WorkingHours("Lunes", time(14, 0), time(18, 0)),
-            WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miércoles", time(10,0), time(16,0)),
-        ],
-        default_duration_minutes=30
-    )
+def test_check_availability_returns_false_when_slot_is_outside_working_hours(professional, appointment_dependencies):
+    service, appointment_repo, working_hours_service = appointment_dependencies
 
-    datetime_slot = datetime(
-        2026, 5, 18, 10, 0
-    )
+    datetime_slot = datetime(2026, 5, 18, 10, 0)
 
-    mock_professional_service = Mock()
-    mock_professional_service.get_by_id.return_value = professional
+    working_hours_service.is_within_schedule.return_value = False
+    result = service.check_availability(
+            professional,
+            datetime_slot,
+            30
+        )
 
-    mock_notification_service = Mock()
-
-    mock_working_hours_service = Mock()
-    mock_working_hours_service.is_within_schedule.return_value = False
-
-    mock_appointment_repo = Mock()
-    mock_appointment_repo.find_by_professional_and_datetime.return_value = None
-
-    mock_client_service = Mock()
-
-    service_appointment = ServiceAppointment(mock_professional_service, mock_working_hours_service,
-                                              mock_notification_service, mock_client_service,  mock_appointment_repo)
-
-    assert not service_appointment.check_availability(professional, datetime_slot, 30)
+    assert result is False
+    appointment_repo.find_conflicting_appointment.assert_not_called()
 
 
 
-def test_check_availability_returns_false_when_slot_is_busy():
-    professional = Professional(
-        id=1,
-        name="Dr. Juan Pérez",
-        specialty="Dermatology",
-        working_hours=[
-            WorkingHours("Lunes", time(9, 0), time(12, 0)),
-            WorkingHours("Lunes", time(14, 0), time(18, 0)),
-            WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miércoles", time(10,0), time(16,0)),
-        ],
-        default_duration_minutes=30
-    )
+def test_check_availability_returns_false_when_slot_is_busy(professional, appointment_dependencies):
+    service, appointment_repo, working_hours_service = appointment_dependencies
 
-    datetime_slot = datetime(
-        2026, 5, 18, 10, 0
-    )
-
-    mock_professional_service = Mock()
-    mock_professional_service.get_by_id.return_value = professional
-    
-    mock_working_hours_service = Mock()
-    mock_working_hours_service.is_within_schedule.return_value = True
-
-    mock_notification_service = Mock()
+    datetime_slot = datetime(2026, 5, 18, 10, 0)
 
     appointment = Appointment(
-        id=None,
+        id=1,
         professional_id=1,
         duration=30,
         datetime_slot=datetime(2026, 5, 18, 10, 0),
@@ -173,17 +173,18 @@ def test_check_availability_returns_false_when_slot_is_busy():
         state=AppointmentState.PENDING
     )
 
-    mock_appointment_repo = Mock()
-    mock_appointment_repo.find_by_professional_and_datetime.return_value = appointment
+    appointment_repo.find_conflicting_appointment.return_value = appointment
 
-    mock_client_service = Mock()
+    result = service.check_availability(
+            professional,
+            datetime_slot,
+            30
+        )
 
-    service_appointment = ServiceAppointment(mock_professional_service, mock_working_hours_service, mock_notification_service, mock_client_service, mock_appointment_repo)
-
-    assert not service_appointment.check_availability(professional, datetime_slot, 30)
+    assert result is False
 
 
-def test_create_appointment_success():
+def test_create_appointment_success(professional):
 
     professional_service = Mock()
     client_service = Mock()
@@ -191,22 +192,8 @@ def test_create_appointment_success():
     notification_service = Mock()
     appointment_repo = Mock()
 
-    professional = Professional(
-        id=1,
-        name="Dr. Juan Pérez",
-        specialty="Dermatology",
-        working_hours=[
-            WorkingHours("Lunes", time(9, 0), time(12, 0)),
-            WorkingHours("Lunes", time(14, 0), time(18, 0)),
-            WorkingHours("Martes", time(9,0), time(13,0)),
-            WorkingHours("Miércoles", time(10,0), time(16,0)),
-        ],
-        default_duration_minutes=30
-    )
-
     professional_service.get_by_id.return_value = professional
     client_service.get_by_id.return_value = Mock()
-
     appointment_repo.save.return_value = 100
 
     service = ServiceAppointment(
@@ -460,3 +447,177 @@ def test_cancel_appointment_raises_exception_when_appointment_not_exists():
         service.cancel_appointment(999)
 
     appointment_repo.update_state.assert_not_called()
+
+
+
+def test_check_availability_returns_false_when_slot_overlaps_at_start(
+    professional,
+    appointment_dependencies
+):
+    service, appointment_repo, _ = appointment_dependencies
+
+    datetime_slot = datetime(2026, 5, 18, 10, 15)
+
+    appointment = Appointment(
+        id=1,
+        professional_id=1,
+        duration=30,
+        datetime_slot=datetime(2026, 5, 18, 10, 0),
+        client_id=10,
+        state=AppointmentState.PENDING
+    )
+
+    appointment_repo.find_conflicting_appointment.return_value = appointment
+
+    result = service.check_availability(
+        professional,
+        datetime_slot,
+        30
+    )
+
+    assert result is False
+
+    appointment_repo.find_conflicting_appointment.assert_called_once_with(
+        1,
+        datetime(2026, 5, 18, 10, 15),
+        datetime(2026, 5, 18, 10, 45)
+    )
+
+
+def test_check_availability_returns_false_when_slot_overlaps_at_end(
+    professional,
+    appointment_dependencies
+):
+    service, appointment_repo, _ = appointment_dependencies
+
+    datetime_slot = datetime(2026, 5, 18, 10, 0)
+
+    appointment = Appointment(
+        id=1,
+        professional_id=1,
+        duration=30,
+        datetime_slot=datetime(2026, 5, 18, 10, 15),
+        client_id=10,
+        state=AppointmentState.PENDING
+    )
+
+    appointment_repo.find_conflicting_appointment.return_value = appointment
+
+    result = service.check_availability(
+        professional,
+        datetime_slot,
+        30
+    )
+
+    assert result is False
+
+    appointment_repo.find_conflicting_appointment.assert_called_once_with(
+        1,
+        datetime(2026, 5, 18, 10, 0),
+        datetime(2026, 5, 18, 10, 30)
+    )
+
+
+
+def test_check_availability_returns_false_when_new_slot_contains_existing(
+    professional,
+    appointment_dependencies
+):
+    service, appointment_repo, _ = appointment_dependencies
+
+    datetime_slot = datetime(2026, 5, 18, 10, 0)
+
+    appointment = Appointment(
+        id=1,
+        professional_id=1,
+        duration=15,
+        datetime_slot=datetime(2026, 5, 18, 10, 15),
+        client_id=10,
+        state=AppointmentState.PENDING
+    )
+
+    appointment_repo.find_conflicting_appointment.return_value = appointment
+
+    result = service.check_availability(
+        professional,
+        datetime_slot,
+        60
+    )
+
+    assert result is False
+
+    appointment_repo.find_conflicting_appointment.assert_called_once_with(
+        1,
+        datetime(2026, 5, 18, 10, 0),
+        datetime(2026, 5, 18, 11, 0)
+    )
+
+
+
+def test_check_availability_returns_false_when_existing_slot_contains_new(
+    professional,
+    appointment_dependencies
+):
+    service, appointment_repo, _ = appointment_dependencies
+
+    datetime_slot = datetime(2026, 5, 18, 10, 15)
+
+    appointment = Appointment(
+        id=1,
+        professional_id=1,
+        duration=60,
+        datetime_slot=datetime(2026, 5, 18, 10, 0),
+        client_id=10,
+        state=AppointmentState.PENDING
+    )
+
+    appointment_repo.find_conflicting_appointment.return_value = appointment
+
+    result = service.check_availability(
+        professional,
+        datetime_slot,
+        15
+    )
+
+    assert result is False
+
+    appointment_repo.find_conflicting_appointment.assert_called_once_with(
+        1,
+        datetime(2026, 5, 18, 10, 15),
+        datetime(2026, 5, 18, 10, 30)
+    )
+
+
+
+def test_check_availability_returns_true_when_slots_are_consecutive(
+    professional,
+    appointment_dependencies
+):
+    service, appointment_repo, _ = appointment_dependencies
+
+    datetime_slot = datetime(2026, 5, 18, 10, 30)
+
+    appointment = Appointment(
+        id=1,
+        professional_id=1,
+        duration=30,
+        datetime_slot=datetime(2026, 5, 18, 10, 0),
+        client_id=10,
+        state=AppointmentState.PENDING
+    )
+
+    appointment_repo.find_conflicting_appointment.return_value = None
+
+    result = service.check_availability(
+        professional,
+        datetime_slot,
+        30
+    )
+
+    assert result is True
+
+    appointment_repo.find_conflicting_appointment.assert_called_once_with(
+        1,
+        datetime(2026, 5, 18, 10, 30),
+        datetime(2026, 5, 18, 11, 0)
+    )
