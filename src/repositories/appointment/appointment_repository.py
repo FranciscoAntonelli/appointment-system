@@ -17,3 +17,7 @@ class AppointmentRepository(ABC):
     @abstractmethod
     def get_by_id(self, appointment_id):
         pass
+
+    @abstractmethod 
+    def update_state(self, appointment_id, state):
+        pass
