@@ -9,53 +9,44 @@ class PostgresProfessionalRepository(ProfessionalRepository):
         super().__init__(connection)
 
     def save(self, professional):
-
-        cursor = None
         
         try:
 
-            cursor = self._connection.cursor()
-
-            cursor.execute(
-                """
-                INSERT INTO professionals (name, specialty, default_duration_minutes)
-                VALUES (%s, %s, %s)
-                RETURNING id;
-                """,
-                (professional.name, professional.specialty, professional.duration)
-            )
-
-            professional_id = cursor.fetchone()[0]
-
-            for wh in professional.working_hours:
+            with self._connection.cursor() as cursor:
 
                 cursor.execute(
                     """
-                    INSERT INTO working_hours (professional_id, day_of_week, start_time, end_time)
-                    VALUES (%s, %s, %s, %s) 
+                    INSERT INTO professionals (name, specialty, default_duration_minutes)
+                    VALUES (%s, %s, %s)
+                    RETURNING id;
                     """,
-                    (professional_id, wh.day_of_week, wh.start_time, wh.end_time)
+                    (professional.name, professional.specialty, professional.duration)
                 )
-            
-            self._connection.commit()
 
-            return professional_id
+                professional_id = cursor.fetchone()[0]
+
+                for wh in professional.working_hours:
+
+                    cursor.execute(
+                        """
+                        INSERT INTO working_hours (professional_id, day_of_week, start_time, end_time)
+                        VALUES (%s, %s, %s, %s) 
+                        """,
+                        (professional_id, wh.day_of_week, wh.start_time, wh.end_time)
+                    )
+                
+                self._connection.commit()
+
+                return professional_id
         
         except Exception:
             self._connection.rollback()
             raise
 
-        finally:
-            if cursor:
-                cursor.close()
-
 
     def get_by_id(self, professional_id):
 
-        cursor = None
-
-        try:
-            cursor = self._connection.cursor()
+        with self._connection.cursor() as cursor:
 
             cursor.execute(
                 """
@@ -101,7 +92,3 @@ class PostgresProfessionalRepository(ProfessionalRepository):
                 working_hours=working_hours,
                 default_duration_minutes=row[3]
             )
-
-        finally:
-            if cursor:
-                cursor.close()

@@ -10,9 +10,7 @@ class PostgresClientRepository(ClientRepository):
 
     def get_by_id(self, client_id):
         
-        cursor = None
-
-        try:
+       with self._connection.cursor() as cursor:
 
             cursor = self._connection.cursor()
 
@@ -32,32 +30,27 @@ class PostgresClientRepository(ClientRepository):
             
             return Client(id=row[0], name=row[1], email=row[2], phone=row[3])
 
-        finally:
-            if cursor:
-                cursor.close()
-
 
     def save(self, client):
-        cursor = None
 
         try:
 
-            cursor = self._connection.cursor()
+            with self._connection.cursor() as cursor:
 
-            cursor.execute(
-                """
-                INSERT INTO clients (name, email, phone)
-                VALUES (%s, %s, %s)
-                RETURNING id
-                """,
-                (client.name, client.email, client.phone)
-            )
+                cursor.execute(
+                    """
+                    INSERT INTO clients (name, email, phone)
+                    VALUES (%s, %s, %s)
+                    RETURNING id
+                    """,
+                    (client.name, client.email, client.phone)
+                )
 
-            client_id = cursor.fetchone()[0]
+                client_id = cursor.fetchone()[0]
 
-            self._connection.commit()
+                self._connection.commit()
 
-            return client_id
+                return client_id
 
         except UniqueViolation:
             self._connection.rollback()
