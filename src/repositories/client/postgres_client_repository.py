@@ -18,7 +18,7 @@ class PostgresClientRepository(ClientRepository):
 
             cursor.execute(
                 """
-                SELECT *
+                SELECT id, name, email, phone
                 FROM clients
                 where id = %s
                 """,

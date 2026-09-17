@@ -98,7 +98,7 @@ class PostgresAppointmentRepository(AppointmentRepository):
 
             cursor.execute(
                 """
-                SELECT *
+                SELECT id, professional_id, client_id, datetime_slot, state, duration
                 FROM appointments
                 WHERE id = %s
                 """,
