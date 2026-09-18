@@ -7,6 +7,8 @@ from src.services.professional.service_professional import ServiceProfessional
 from src.entities.working_hours import WorkingHours
 from datetime import time
 
+#python -m pytest
+
 
 # ---- create_professional ----
 
@@ -14,7 +16,7 @@ from datetime import time
 
 def test_create_professional_works_well():
     professional = Professional(
-        id=1,
+        id=None,
         name="Dr. Juan Pérez",
         specialty="Dermatology",
         working_hours=[
@@ -29,12 +31,16 @@ def test_create_professional_works_well():
     mock_validator = Mock()
 
     mock_repository_professional = Mock()
-    mock_repository_professional.save.return_value = professional
+    mock_repository_professional.save.return_value = 10
 
     service_professional = ServiceProfessional(mock_repository_professional, mock_validator)
-    professional_created = service_professional.create_professional(professional)
-    assert professional_created ==  professional
 
+    professional_created = service_professional.create_professional(professional)
+
+    assert professional_created ==  professional
+    assert professional.id == 10
+    mock_validator.validate.assert_called_once_with(professional)
+    mock_repository_professional.save.assert_called_once_with(professional)
 
 def test_create_professional_calls_validator_and_repository():
     professional = Professional(

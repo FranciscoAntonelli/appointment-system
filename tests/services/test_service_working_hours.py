@@ -21,14 +21,10 @@ def test_check_working_hours_returns_true_when_slot_is_within_working_hours():
 
 def test_appointment_fits_completely_inside_working_hours():
     working_hours = [
-        WorkingHours(
-            day_of_week="Lunes",
-            start_time=time(9, 0),
-            end_time=time(18, 0)
-        )
+        WorkingHours("Lunes", time(9, 0), time(18, 0))
     ]
 
-    datetime_slot = datetime(2026, 8, 10, 17, 0)
+    datetime_slot = datetime(2026, 5, 18, 10, 0)
 
     service = ServiceWorkingHours()
     result = service.is_within_schedule(

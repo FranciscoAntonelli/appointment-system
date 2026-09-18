@@ -309,30 +309,47 @@ def test_confirm_appointment_success():
 
     appointment_repo = Mock()
 
-    appointment = Mock()
-    appointment.id = 15
-    appointment.state = AppointmentState.PENDING
+    appointment = Appointment(
+        id=15,
+        duration=30,
+        professional_id=1,
+        datetime_slot=datetime(2026, 5, 18, 10, 0),
+        client_id=10,
+        state=AppointmentState.PENDING
+    )
 
     appointment_repo.get_by_id.return_value = appointment
 
+    professional_service = Mock()
+    professional = Professional(
+        id=1,
+        name="Dr. Juan Pérez",
+        specialty="Dermatology",
+        working_hours=[],
+        default_duration_minutes=30
+    )
+    professional_service.get_by_id.return_value = professional
+
+    notification_service = Mock()
+
     service = ServiceAppointment(
-        professional_service=Mock(),
+        professional_service=professional_service,
         client_service=Mock(),
         working_hours_service=Mock(),
-        notification_service=Mock(),
+        notification_service=notification_service,
         repo=appointment_repo
     )
 
     result = service.confirm_appointment(15)
 
     assert result == appointment
+    assert appointment.state == AppointmentState.CONFIRMED
 
     appointment_repo.get_by_id.assert_called_once_with(15)
     appointment_repo.update_state.assert_called_once_with(
         15,
         AppointmentState.CONFIRMED
     )
-
 
 def test_confirm_appointment_raises_exception_when_not_pending():
 
@@ -381,9 +398,15 @@ def test_cancel_appointment_success():
 
     appointment_repo = Mock()
 
-    appointment = Mock()
-    appointment.id = 20
-    appointment.state = AppointmentState.PENDING
+    appointment = Appointment(
+        id=20,
+        duration=30,
+        professional_id=1,
+        datetime_slot=datetime(2026, 5, 18, 10, 0),
+        client_id=10,
+        state=AppointmentState.PENDING
+    )
+
 
     appointment_repo.get_by_id.return_value = appointment
 
@@ -398,13 +421,13 @@ def test_cancel_appointment_success():
     result = service.cancel_appointment(20)
 
     assert result == appointment
+    assert appointment.state == AppointmentState.CANCELED
 
     appointment_repo.get_by_id.assert_called_once_with(20)
     appointment_repo.update_state.assert_called_once_with(
         20,
         AppointmentState.CANCELED
     )
-
 
 def test_cancel_appointment_raises_exception_when_not_pending():
 
