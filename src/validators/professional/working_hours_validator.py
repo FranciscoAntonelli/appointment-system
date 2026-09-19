@@ -1,5 +1,6 @@
 from src.exceptions.validation_exception import ValidationException
 from src.validators.validator import Validator
+from src.enums.days_of_week import DaysOfWeek
 
 class WorkingHoursValidator(Validator):
 
@@ -15,18 +16,11 @@ class WorkingHoursValidator(Validator):
 
     
     def _validate_days(self, working_hours):
-        days_week = [
-        "Lunes",
-        "Martes",
-        "Miércoles",
-        "Jueves",
-        "Viernes",
-        "Sábado",
-        "Domingo"
-        ]
+        valid_days = {day.value for day in DaysOfWeek}
+
 
         for wh in working_hours:
-            if wh.day_of_week not in days_week:
+            if wh.day_of_week not in valid_days:
                 raise ValidationException("El dia no existe")
             
 
