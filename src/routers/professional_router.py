@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends
+from schemas.responses.professional_response import ProfessionalResponse
 from src.entities.professional import Professional
-from src.schemas.professional_request import ProfessionalRequest
+from src.schemas.requests.professional_request import ProfessionalRequest
 from src.dependencies.dependency_professional_service import get_professional_service
 
 
 router = APIRouter(prefix="/professionals", tags=["Professionals"])
 
-@router.post("/")
+@router.post("/", response_model=ProfessionalResponse)
 def create_professional(request: ProfessionalRequest, service = Depends(get_professional_service)):
 
 
@@ -22,7 +23,7 @@ def create_professional(request: ProfessionalRequest, service = Depends(get_prof
     }
     
 
-@router.get("/{professional_id}")
+@router.get("/{professional_id}", response_model=ProfessionalResponse)
 def get_professional(professional_id: int, service = Depends(get_professional_service)):
     professional = service.get_by_id(professional_id)
     return professional

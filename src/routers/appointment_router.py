@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
-from src.schemas.appointment_request import AppointmentRequest
+from src.schemas.requests.appointment_request import AppointmentRequest
+from src.schemas.responses.appointment_response import AppointmentResponse
 from src.dependencies.dependency_appointment_service import get_appointment_service
 
 """
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/appointments", tags=["Appointments"]) #crea router F
 
 # en fastapi se ponen los tipos
 
-@router.post("/") # esta funcion responde a peticiones HTTP POST
+@router.post("/", response_model=AppointmentResponse) # esta funcion responde a peticiones HTTP POST
 # fastapi toma automaticamente el json enviado por el cliente y lo convierte en un objeto AppointmentRequest
 # depends le dice a fastapi antes de ejecutar, llama get_appointment_service y pasame el resultado de la variable service
 def create_appointment(request: AppointmentRequest, service = Depends(get_appointment_service)):
@@ -32,7 +33,7 @@ def create_appointment(request: AppointmentRequest, service = Depends(get_appoin
     }
     
 
-@router.get("/{appointment_id}")
+@router.get("/{appointment_id}", response_model=AppointmentResponse)
 def get_appointment(appointment_id: int, service = Depends(get_appointment_service)):
     return service.get_by_id(appointment_id)
 

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from src.schemas.client_request import ClientRequest
+from schemas.request.client_request import ClientRequest
 
 
 def test_client_request_accepts_valid_data():

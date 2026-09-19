@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from pydantic import ValidationError
 
-from src.schemas.appointment_request import AppointmentRequest
+from schemas.request.appointment_request import AppointmentRequest
 
 
 def test_appointment_request_accepts_valid_data():

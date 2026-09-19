@@ -2,8 +2,8 @@ import pytest
 from datetime import time
 from pydantic import ValidationError
 
-from src.schemas.professional_request import ProfessionalRequest
-from src.schemas.working_hours_request import WorkingHoursRequest
+from schemas.request.professional_request import ProfessionalRequest
+from schemas.request.working_hours_request import WorkingHoursRequest
 
 
 def test_professional_request_accepts_valid_data():

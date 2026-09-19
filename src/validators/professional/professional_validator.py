@@ -16,13 +16,9 @@ class ProfessionalValidator(Validator):
             raise ValidationException("No hay nombre")
 
     def _validate_duration(self, duration):
-        try:
-            number = int(duration)
-        except (ValueError, TypeError):
-            raise ValidationException("La duración no es un número entero")
 
-        if number <= 0:
+        if duration <= 0:
             raise ValidationException("La duración debe ser mayor a 0")
             
-        if number > 480:
+        if duration > 480:
             raise ValidationException("La duración no puede superar los 480 minutos (8 horas)")
