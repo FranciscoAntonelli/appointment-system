@@ -6,6 +6,8 @@ from src.services.appointment.i_service_appointment import IServiceAppointment
 from src.enums.appointment_state import AppointmentState
 from datetime import datetime, timedelta
 
+from src.utils.datetime_utils import DateTimeUtils
+
 
 class ServiceAppointment(IServiceAppointment):
     def __init__(self, professional_service, working_hours_service, notification_service, client_service, repo):
@@ -36,7 +38,7 @@ class ServiceAppointment(IServiceAppointment):
         professional = self._professional_service.get_by_id(professional_id)
         duration = professional.duration
 
-        now = datetime.now()
+        now = DateTimeUtils.now()
 
         if datetime_slot < now:
             raise ValidationException("La fecha y hora del turno debe ser futura")
