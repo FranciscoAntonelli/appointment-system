@@ -10,4 +10,7 @@ def get_connection():
         password=settings._db_password
     ).connect()
 
-    return connection
+    try:
+        yield connection # yield es como un return pero permite que la funcion no se cierra la conexion a la base de datos y se puede seguir usando
+    finally:
+        connection.close()

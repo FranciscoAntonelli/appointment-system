@@ -1,3 +1,5 @@
+from fastapi import Depends
+
 from src.dependencies.dependency_database import get_connection
 from src.services.professional.service_professional import ServiceProfessional
 from src.repositories.professional.postgres_professional_repository import PostgresProfessionalRepository
@@ -7,9 +9,9 @@ from src.validators.professional.professional_validator import ProfessionalValid
 
 def get_professional_service():
 
-    connection = get_connection()
+    connection = Depends(get_connection)
 
-    professional_repo = PostgresProfessionalRepository(connection)
+    repository = PostgresProfessionalRepository(connection)
 
     working_hours_validator = WorkingHoursValidator()
 
@@ -18,6 +20,6 @@ def get_professional_service():
     )
 
     return ServiceProfessional(
-        professional_repo,
+        repository,
         professional_validator
     )
